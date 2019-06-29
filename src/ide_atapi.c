@@ -4,7 +4,7 @@
 #include "scsi.h"
 #include "timer.h"
 
-#define IDE_TIME (100 * TIMER_USEC)
+#define IDE_TIME (TIMER_USEC)
 
 #define ATAPI_STATE_IDLE             0
 #define ATAPI_STATE_COMMAND          1

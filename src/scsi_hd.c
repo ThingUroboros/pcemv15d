@@ -12,7 +12,7 @@ extern char ide_fn[7][512];
 
 #define BUFFER_SIZE (256*1024)
 
-#define RW_DELAY (TIMER_USEC * 500)
+#define RW_DELAY (TIMER_USEC)
 
 enum
 {

@@ -21,7 +21,7 @@
 #include "esdi_at.h"
 
 
-#define IDE_TIME (TIMER_USEC*10)//(5 * 100 * (1 << TIMER_SHIFT))
+#define IDE_TIME (TIMER_USEC)//(5 * 100 * (1 << TIMER_SHIFT))
 
 #define STAT_ERR		0x01
 #define STAT_INDEX		0x02

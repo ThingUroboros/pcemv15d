@@ -1,4 +1,4 @@
-#define IDE_TIME (10 * TIMER_USEC)
+#define IDE_TIME (TIMER_USEC)
 
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
