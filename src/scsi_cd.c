@@ -279,7 +279,7 @@ static void scsi_cd_callback(void *p)
                         scsi_bus_kick(data->bus);
                 }
                 else
-                        timer_advance_u64(&data->callback_timer, 1000 * TIMER_USEC);
+                        timer_advance_u64(&data->callback_timer, TIMER_USEC);
         }
 }
 
@@ -702,7 +702,7 @@ static int scsi_cd_command(uint8_t *cdb, void *p)
                                 data->cmd_pos = CMD_POS_WAIT;
                                 data->new_cmd_pos = CMD_POS_COMPLETE;
                                 data->wait_time = seek_time;
-                                timer_set_delay_u64(&data->callback_timer, 1000 * TIMER_USEC);
+                                timer_set_delay_u64(&data->callback_timer, TIMER_USEC);
                                 return SCSI_PHASE_COMMAND;
                         }
                 }
@@ -766,7 +766,7 @@ static int scsi_cd_command(uint8_t *cdb, void *p)
                                 data->cmd_pos = CMD_POS_WAIT;
                                 data->new_cmd_pos = CMD_POS_COMPLETE;
                                 data->wait_time = seek_time;
-                                timer_set_delay_u64(&data->callback_timer, 1000 * TIMER_USEC);
+                                timer_set_delay_u64(&data->callback_timer, TIMER_USEC);
                                 return SCSI_PHASE_COMMAND;
                         }
                 }
@@ -867,7 +867,7 @@ static int scsi_cd_command(uint8_t *cdb, void *p)
                                 data->cmd_pos = CMD_POS_WAIT;
                                 data->new_cmd_pos = CMD_POS_START_SECTOR;
                                 data->wait_time = seek_time;
-                                timer_set_delay_u64(&data->callback_timer, 1000 * TIMER_USEC);
+                                timer_set_delay_u64(&data->callback_timer, TIMER_USEC);
                                 return SCSI_PHASE_COMMAND;
                         }
                 }
