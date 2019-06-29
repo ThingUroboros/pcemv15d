@@ -68,9 +68,6 @@ typedef struct sb_ct1745_mixer_t
         int32_t mic;
         int32_t speaker;
 
-        int bass_l,   bass_r;
-        int treble_l, treble_r;
-        
         int output_selector;
         #define OUTPUT_MIC 1
         #define OUTPUT_CD_R 2
@@ -90,8 +87,6 @@ typedef struct sb_ct1745_mixer_t
 
         int mic_agc;
         
-        int32_t input_gain_L;
-        int32_t input_gain_R;
         int32_t output_gain_L;
         int32_t output_gain_R;
         
@@ -267,38 +262,6 @@ static void sb_get_buffer_sb16(int32_t *buffer, int len, void *p)
                 out_l = (out_l * mixer->master_l) >> 15;
                 out_r = (out_r * mixer->master_r) >> 15;
                 
-                if (mixer->bass_l != 8 || mixer->bass_r != 8 || mixer->treble_l != 8 || mixer->treble_r != 8)
-                {
-                        /* This is not exactly how one does bass/treble controls, but the end result is like it. A better implementation would reduce the cpu usage */
-                        if (mixer->bass_l>8) out_l += (int32_t)(low_iir(0, (float)out_l)*sb_bass_treble_4bits[mixer->bass_l]);
-                        if (mixer->bass_r>8)  out_r += (int32_t)(low_iir(1, (float)out_r)*sb_bass_treble_4bits[mixer->bass_r]);
-                        if (mixer->treble_l>8) out_l += (int32_t)(high_iir(0, (float)out_l)*sb_bass_treble_4bits[mixer->treble_l]);
-                        if (mixer->treble_r>8) out_r += (int32_t)(high_iir(1, (float)out_r)*sb_bass_treble_4bits[mixer->treble_r]);
-                        if (mixer->bass_l<8)   out_l = (int32_t)((out_l )*sb_bass_treble_4bits[mixer->bass_l] + low_cut_iir(0, (float)out_l)*(1.f-sb_bass_treble_4bits[mixer->bass_l]));
-                        if (mixer->bass_r<8)   out_r = (int32_t)((out_r )*sb_bass_treble_4bits[mixer->bass_r] + low_cut_iir(1, (float)out_r)*(1.f-sb_bass_treble_4bits[mixer->bass_r])); 
-                        if (mixer->treble_l<8) out_l = (int32_t)((out_l )*sb_bass_treble_4bits[mixer->treble_l] + high_cut_iir(0, (float)out_l)*(1.f-sb_bass_treble_4bits[mixer->treble_l]));
-                        if (mixer->treble_r<8) out_r = (int32_t)((out_r )*sb_bass_treble_4bits[mixer->treble_r] + high_cut_iir(1, (float)out_r)*(1.f-sb_bass_treble_4bits[mixer->treble_r]));
-                }
-                if (sb->dsp.sb_enable_i)
-                {
-                        int c_record = dsp_rec_pos;
-                        c_record +=(((c/2) * sb->dsp.sb_freq) / 48000)*2;
-                        in_l <<= mixer->input_gain_L;
-                        in_r <<= mixer->input_gain_R;
-                        // Clip signal
-                        if (in_l < -32768)
-                                in_l = -32768;
-                        else if (in_l > 32767)
-                                in_l = 32767;
-                
-                        if (in_r < -32768)
-                                in_r = -32768;
-                        else if (in_r > 32767)
-                                in_r = 32767;
-                        sb->dsp.record_buffer[c_record&0xFFFF] = in_l;
-                        sb->dsp.record_buffer[(c_record+1)&0xFFFF] = in_r;
-                }
-
                 buffer[c]     += (out_l << mixer->output_gain_L);
                 buffer[c + 1] += (out_r << mixer->output_gain_R);
         }
@@ -346,71 +309,9 @@ static void sb_get_buffer_emu8k(int32_t *buffer, int len, void *p)
                 out_l = (out_l * mixer->master_l) >> 15;
                 out_r = (out_r * mixer->master_r) >> 15;
 
-                if (mixer->bass_l != 8 || mixer->bass_r != 8 || mixer->treble_l != 8 || mixer->treble_r != 8)
-                {
-                        /* This is not exactly how one does bass/treble controls, but the end result is like it. A better implementation would reduce the cpu usage */
-                        if (mixer->bass_l>8) out_l += (int32_t)(low_iir(0, (float)out_l)*sb_bass_treble_4bits[mixer->bass_l]);
-                        if (mixer->bass_r>8)  out_r += (int32_t)(low_iir(1, (float)out_r)*sb_bass_treble_4bits[mixer->bass_r]);
-                        if (mixer->treble_l>8) out_l += (int32_t)(high_iir(0, (float)out_l)*sb_bass_treble_4bits[mixer->treble_l]);
-                        if (mixer->treble_r>8) out_r += (int32_t)(high_iir(1, (float)out_r)*sb_bass_treble_4bits[mixer->treble_r]);
-                        if (mixer->bass_l<8)   out_l = (int32_t)(out_l *sb_bass_treble_4bits[mixer->bass_l] + low_cut_iir(0, (float)out_l)*(1.f-sb_bass_treble_4bits[mixer->bass_l]));
-                        if (mixer->bass_r<8)   out_r = (int32_t)(out_r *sb_bass_treble_4bits[mixer->bass_r] + low_cut_iir(1, (float)out_r)*(1.f-sb_bass_treble_4bits[mixer->bass_r])); 
-                        if (mixer->treble_l<8) out_l = (int32_t)(out_l *sb_bass_treble_4bits[mixer->treble_l] + high_cut_iir(0, (float)out_l)*(1.f-sb_bass_treble_4bits[mixer->treble_l]));
-                        if (mixer->treble_r<8) out_r = (int32_t)(out_r *sb_bass_treble_4bits[mixer->treble_r] + high_cut_iir(1, (float)out_r)*(1.f-sb_bass_treble_4bits[mixer->treble_r]));
-                }
-                if (sb->dsp.sb_enable_i)
-                {
-//                      in_l += (mixer->input_selector_left&INPUT_CD_L) ? audio_cd_buffer[cd_read_pos+c_emu8k] : 0 + (mixer->input_selector_left&INPUT_CD_R) ? audio_cd_buffer[cd_read_pos+c_emu8k+1] : 0;
-//                      in_r += (mixer->input_selector_right&INPUT_CD_L) ? audio_cd_buffer[cd_read_pos+c_emu8k]: 0 + (mixer->input_selector_right&INPUT_CD_R) ? audio_cd_buffer[cd_read_pos+c_emu8k+1] : 0;
-
-                        int c_record = dsp_rec_pos;
-                        c_record +=(((c/2) * sb->dsp.sb_freq) / 48000)*2;
-                        #ifdef SB_DSP_RECORD_DEBUG
-                                if (c_record > 0xFFFF && !buf_written)
-                                {
-                                        if (!soundfsb) soundfsb=fopen("sound_sb.pcm","wb");
-                                        fwrite(sb->dsp.record_buffer,2,0x10000,soundfsb);
-                                        old_dsp_rec_pos = dsp_rec_pos;
-                                        buf_written=1;
-                                }
-                        #endif
-                        in_l <<= mixer->input_gain_L;
-                        in_r <<= mixer->input_gain_R;
-                        // Clip signal
-                        if (in_l < -32768)
-                                in_l = -32768;
-                        else if (in_l > 32767)
-                                in_l = 32767;
-                
-                        if (in_r < -32768)
-                                in_r = -32768;
-                        else if (in_r > 32767)
-                                in_r = 32767;
-                        sb->dsp.record_buffer[c_record&0xFFFF] = in_l;
-                        sb->dsp.record_buffer[(c_record+1)&0xFFFF] = in_r;
-                        #ifdef SB_DSP_RECORD_DEBUG
-                                if (c_record != last_crecord)
-                                {
-                                        if (!soundfsbin) soundfsbin=fopen("sound_sb_in.pcm","wb");
-                                        fwrite(&sb->dsp.record_buffer[c_record&0xFFFF],2,2,soundfsbin);
-                                        last_crecord=c_record;
-                                }
-                        #endif
-                }
-
                 buffer[c]     += (out_l << mixer->output_gain_L);
                 buffer[c + 1] += (out_r << mixer->output_gain_R);
         }
-        #ifdef SB_DSP_RECORD_DEBUG
-        if (old_dsp_rec_pos > dsp_rec_pos)
-        {
-                buf_written=0;
-                old_dsp_rec_pos=dsp_rec_pos;
-        }
-        #endif
-        
-        sb->dsp.record_pos_write+=((len * sb->dsp.sb_freq) / 48000)*2;
-        sb->dsp.record_pos_write&=0xFFFF;
         sb->pos = 0;
         sb->opl.pos = 0;
         sb->dsp.pos = 0;
@@ -731,16 +632,8 @@ void sb_ct1745_mixer_write(uint16_t addr, uint8_t val, void *p)
                 mixer->mic      = sb_att_2dbstep_5bits[mixer->regs[0x3A] >> 3];
                 mixer->speaker  = sb_att_2dbstep_5bits[mixer->regs[0x3B]*3 + 22];
                 
-
-                mixer->input_gain_L = (mixer->regs[0x3F] >> 6);
-                mixer->input_gain_R = (mixer->regs[0x40] >> 6);
                 mixer->output_gain_L = (mixer->regs[0x41] >> 6);
                 mixer->output_gain_R = (mixer->regs[0x42] >> 6);
-
-                mixer->bass_l   = mixer->regs[0x46] >> 4;
-                mixer->bass_r   = mixer->regs[0x47] >> 4;
-                mixer->treble_l = mixer->regs[0x44] >> 4;
-                mixer->treble_r = mixer->regs[0x45] >> 4;
 
                 /*TODO: pcspeaker volume, with "output_selector" check? or better not? */
                 sound_set_cd_volume(((uint32_t)mixer->master_l * (uint32_t)mixer->cd_l) / 65535,

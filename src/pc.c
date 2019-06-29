@@ -594,7 +594,9 @@ void fullspeed()
         {
                 printf("Set fullspeed - %i %i %i\n",is386,AT,cpuspeed2);
                 if (AT)
-                        setpitclock(models[model].cpu[cpu_manufacturer].cpus[cpu].rspeed);
+                        //setpitclock(10000);
+                        //setpitclock(models[model].cpu[cpu_manufacturer].cpus[cpu].rspeed);
+                        setpitclock(14318184.0);
                 else
                         setpitclock(14318184.0);
 //                if (is386) setpitclock(clocks[2][cpuspeed2][0]);
@@ -606,7 +608,8 @@ void fullspeed()
 void speedchanged()
 {
         if (AT)
-                setpitclock(models[model].cpu[cpu_manufacturer].cpus[cpu].rspeed);
+               setpitclock(14318184.0);
+               //setpitclock(models[model].cpu[cpu_manufacturer].cpus[cpu].rspeed);
         else
                 setpitclock(14318184.0);
 }

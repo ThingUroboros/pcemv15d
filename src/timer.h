@@ -63,8 +63,6 @@ static inline void timer_advance_u64(pc_timer_t *timer, uint64_t delay)
 	uint32_t int_delay = delay >> 32;
 	uint32_t frac_delay = delay & 0xffffffff;
 
-	if ((frac_delay + timer->ts_frac) < frac_delay)
-		timer->ts_integer++;
 	timer->ts_frac += frac_delay;
 	timer->ts_integer += int_delay;
 

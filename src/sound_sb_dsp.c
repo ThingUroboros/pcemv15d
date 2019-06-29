@@ -120,20 +120,8 @@ static inline double sinc(double x)
 static void recalc_sb16_filter(int playback_freq)
 {
         /*Cutoff frequency = playback / 2*/
-        float fC = ((float)playback_freq / 2.0) / 48000.0;
         float gain;
         int n;
-        
-        for (n = 0; n < SB16_NCoef; n++)
-        {
-                /*Blackman window*/
-                double w = 0.42 - (0.5 * cos((2.0*n*M_PI)/(double)(SB16_NCoef-1))) + (0.08 * cos((4.0*n*M_PI)/(double)(SB16_NCoef-1)));
-                /*Sinc filter*/
-                double h = sinc(2.0 * fC * ((double)n - ((double)(SB16_NCoef-1) / 2.0)));
-                
-                /*Create windowed-sinc filter*/
-                low_fir_sb16_coef[n] = w * h;
-        }
         
         low_fir_sb16_coef[(SB16_NCoef - 1) / 2] = 1.0;
 
@@ -217,15 +205,9 @@ void sb_doreset(sb_dsp_t *dsp)
 
 void sb_dsp_speed_changed(sb_dsp_t *dsp)
 {
-        if (dsp->sb_timeo < 256)
-                dsp->sblatcho = TIMER_USEC * (256 - dsp->sb_timeo);
-        else
-                dsp->sblatcho = (uint64_t)(TIMER_USEC * (1000000.0f / (float)(dsp->sb_timeo - 256)));
+                dsp->sblatcho = (uint64_t)(100000000 * (1000000.0f / (float)(dsp->sb_timeo - 256)));
 
-        if (dsp->sb_timei < 256)
-                dsp->sblatchi = TIMER_USEC * (256 - dsp->sb_timei);
-        else
-                dsp->sblatchi = (uint64_t)(TIMER_USEC * (1000000.0f / (float)(dsp->sb_timei - 256)));
+                dsp->sblatchi = (uint64_t)(100000000 * (1000000.0f / (float)(dsp->sb_timei - 256)));
 }
 
 void sb_add_data(sb_dsp_t *dsp, uint8_t v)
