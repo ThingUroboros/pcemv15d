@@ -3,7 +3,7 @@ CPP  = g++
 CC   = gcc
 WINDRES = windres.exe
 WXVERSION = 31
-WXINCLUDE = e:/MinGWget/include/wx/
+WXINCLUDE = c:/MinGW/include/wx/
 CFLAGS = -O3 -march=i686 -fomit-frame-pointer -msse2 -mstackrealign -Werror -fno-strict-aliasing
 CXXFLAGS = $(CFLAGS)
 OBJ = 386.o 386_common.o 386_dynarec.o 386_dynarec_ops.o 808x.o 82091aa.o acc2036.o acc2168.o acc3221.o acer386sx.o ali1429.o amstrad.o cassette.o \
