@@ -104,7 +104,7 @@ bool CDROM_Interface_Image::GetAudioTracks(int& stTrack, int& end, TMSF& leadOut
 {
 	stTrack = 1;
 	end = (int)(tracks.size() - 1);
-	FRAMES_TO_MSF(tracks[tracks.size() - 1].start + 150, &leadOut.min, &leadOut.sec, &leadOut.fr);
+	FRAMES_TO_MSF(tracks[tracks.size() - 1].start, &leadOut.min, &leadOut.sec, &leadOut.fr);
 	return true;
 }
 
