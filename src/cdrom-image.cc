@@ -247,21 +247,21 @@ static uint8_t image_getcurrentsubchannel(uint8_t *b, int msf)
         if (msf)
         {
                 uint32_t dat = MSFtoLBA(absPos.min, absPos.sec, absPos.fr);
-                b[pos + 3] = (uint8_t)(dat % 75); dat /= 75;
-                b[pos + 2] = (uint8_t)(dat % 60); dat /= 60;
-                b[pos + 1] = (uint8_t)dat;
+                b[pos + 3] = (uint8_t) absPos.fr;
+                b[pos + 2] = (uint8_t) absPos.sec;
+                b[pos + 1] = (uint8_t) absPos.min;
                 b[pos]     = 0;
                 pos += 4;
                 dat = MSFtoLBA(relPos.min, relPos.sec, relPos.fr);
-                b[pos + 3] = (uint8_t)(dat % 75); dat /= 75;
-                b[pos + 2] = (uint8_t)(dat % 60); dat /= 60;
-                b[pos + 1] = (uint8_t)dat;
+                b[pos + 3] = (uint8_t) relPos.fr;
+                b[pos + 2] = (uint8_t) relPos.sec;
+                b[pos + 1] = (uint8_t) relPos.min;
                 b[pos]     = 0;
                 pos += 4;
         }
         else
         {
-                uint32_t dat = MSFtoLBA(absPos.min, absPos.sec, absPos.fr);
+                uint32_t dat = MSFtoLBA(absPos.min, absPos.sec, absPos.fr - 150);
                 b[pos++] = (dat >> 24) & 0xff;
                 b[pos++] = (dat >> 16) & 0xff;
                 b[pos++] = (dat >> 8) & 0xff;

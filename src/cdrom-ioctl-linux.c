@@ -353,7 +353,7 @@ static uint8_t ioctl_getcurrentsubchannel(uint8_t *b, int msf)
 
         if (msf)
         {
-                uint32_t dat = cdpos;
+                uint32_t dat = cdpos + 150;
                 b[pos + 3] = (uint8_t)(dat % 75); dat /= 75;
                 b[pos + 2] = (uint8_t)(dat % 60); dat /= 60;
                 b[pos + 1] = (uint8_t)dat;
