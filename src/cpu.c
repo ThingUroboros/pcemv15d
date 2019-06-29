@@ -1736,21 +1736,8 @@ void cpu_update_waitstates()
 
 void cpu_set_turbo(int turbo)
 {
-        if (cpu_turbo != turbo)
-        {
-                cpu_turbo = turbo;
 
                 cpu_s = &models[model].cpu[cpu_manufacturer].cpus[cpu];
-                if (cpu_s->cpu_type >= CPU_286)
-                {
-                        if (cpu_turbo)
-                                setpitclock(cpu_turbo_speed);
-                        else
-                                setpitclock(cpu_nonturbo_speed);
-                }
-                else
-                        setpitclock(14318184.0);
-        }
 }
 
 int cpu_get_speed()
